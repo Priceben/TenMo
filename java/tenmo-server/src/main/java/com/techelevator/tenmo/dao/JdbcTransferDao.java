@@ -42,7 +42,9 @@ public class JdbcTransferDao implements TransferDao{
     @Override
     public Transfers sendTransfer(int userFrom, int userTo, BigDecimal amount, int transferTypeId){
         transferTypeId = 2;
-        Transfers newTransfer = new Transfers();
+        int userFromId = accountDao.findByUserId(userFrom).getUserId();
+        int userToId = accountDao.findByUserId(userFrom).getUserId();
+
             if (userTo == userFrom) {
                 System.out.println("You can't send money to yourself!!!");
             }

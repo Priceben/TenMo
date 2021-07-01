@@ -31,16 +31,17 @@ public class DaoController {
         return balance;
     }
 
-    @RequestMapping(path = "accounts/{userId}/transfers", method = RequestMethod.GET)
+    @RequestMapping(path = "accounts/transfers/{userId}", method = RequestMethod.GET)
     public List<Transfers> getAllTransfers(@PathVariable int userId){
         List<Transfers> listTransfers = transferDao.getAllTransfers(userId);
         return listTransfers;
     }
 
-    @RequestMapping(path = "account/{userId}/transfers", method = RequestMethod.POST)
+    @RequestMapping(path = "account/transfers/{userFromId}/{userToId}/{amount}", method = RequestMethod.POST)
     public Transfers sendMoney(@RequestBody Transfers transfer, @PathVariable int userId){
         transfer = transferDao.sendTransfer(transfer.getAccountFrom(), transfer.getAccountTo(),
                 transfer.getAmount(), transfer.getTransferTypeId());
+        System.out.println("Transfer successful!");
         return transfer;
     }
 
