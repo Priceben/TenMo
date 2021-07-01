@@ -6,10 +6,7 @@ import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Transfers;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.security.auth.login.AccountNotFoundException;
 import javax.validation.Valid;
@@ -38,6 +35,13 @@ public class DaoController {
     public List<Transfers> getAllTransfers(@PathVariable int userId){
         List<Transfers> listTransfers = transferDao.getAllTransfers(userId);
         return listTransfers;
+    }
+
+    @RequestMapping(path = "account/{userId}/transfers", method = RequestMethod.POST)
+    public Transfers sendMoney(@RequestBody Transfers transfer, @PathVariable int userId){
+        transfer = transferDao.sendTransfer(transfer.getAccountFrom(), transfer.getAccountTo(),
+                transfer.getAmount(), transfer.getTransferTypeId());
+        return transfer;
     }
 
 }

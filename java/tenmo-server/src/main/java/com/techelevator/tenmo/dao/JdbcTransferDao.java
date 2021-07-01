@@ -1,7 +1,9 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.model.Accounts;
 import com.techelevator.tenmo.model.SendMoneyToSelfException;
 import com.techelevator.tenmo.model.Transfers;
+import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
@@ -46,13 +48,16 @@ public class JdbcTransferDao implements TransferDao{
             }
             if(amount.compareTo(accountDao.getBalance(userFrom)) == -1 || amount.compareTo(accountDao.getBalance(userFrom)) == -0){
                 String sql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount)" +
-                        "Values(2, 2, ?, ?, ?);" +
-                        "";
+                        "Values(2, 2, ?, ?, ?);";
                 jdbcTemplate.update(sql, userFrom, userTo, amount);
+                accountDao.addToBalance(amount, userTo);
+                accountDao.subtractFromBalance(amount, userFrom);
+                System.out.println("Transfer completed!");
             }
-
-
-        return null;
+            else{
+                System.out.println("Transfer failed due to insufficient funds");
+            }
+            return null;
     }
 
     private Transfers mapRowToTransfers(SqlRowSet transferInfo){

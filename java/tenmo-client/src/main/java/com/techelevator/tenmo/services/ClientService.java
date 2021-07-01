@@ -51,6 +51,23 @@ public class ClientService {
         return transfersList;
     }
 
+    public Transfers sendMoney(AuthenticatedUser currentUser){
+        Transfers transfer = null;
+        try{
+            transfer = restTemplate.exchange(API_BASE_URL + "/accounts/" + currentUser.getUser().getId() +
+                    "/transfers", HttpMethod.PUT, makeAuthEntity(currentUser), Transfers.class).getBody();
+        } catch (NullPointerException ne){
+            System.out.println("No transfers found");
+        } catch (RestClientException re){
+            System.out.println("Request invalid");
+        } catch (ResponseStatusException rse){
+            System.out.println("Error contacting server");
+        } catch (Exception e){
+            System.out.println("Oops, something went wrong!");
+        }
+        return transfer;
+    }
+
 
 
     private HttpEntity makeAuthEntity(AuthenticatedUser currentUser){

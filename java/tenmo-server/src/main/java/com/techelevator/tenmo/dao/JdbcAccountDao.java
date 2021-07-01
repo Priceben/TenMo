@@ -23,33 +23,30 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public BigDecimal addToBalance(BigDecimal amount, int accountId){
-        Accounts account = findByAccountId(accountId);
+    public BigDecimal addToBalance(BigDecimal amount, int userId){
+        Accounts account = findByUserId(userId);
         BigDecimal balance = account.getBalance().add(amount);
-        //String sql = "UPDATE accounts"
+          String sql = "UPDATE accounts SET balance = (balance + ? ) WHERE user_id = ?;";
+          jdbcTemplate.update(sql, balance, userId);
         return account.getBalance();
-        //TODO flesh out method
     }
 
     @Override
-    public BigDecimal subtractFromBalance(BigDecimal amount, int accountId){
-        return null;
-        //TODO flesh out method
+    public BigDecimal subtractFromBalance(BigDecimal amount, int userId){
+        Accounts account = findByUserId(userId);
+        BigDecimal balance = account.getBalance().subtract(amount);
+        String sql = "UPDATE accounts SET balance = (balance - ? ) WHERE user_id = ?;";
+        jdbcTemplate.update(sql, balance, userId);
+        return account.getBalance();
     }
 
     @Override
     public Accounts findByUserId(int userId){
-        return null;
-        //TODO flesh out method
-    }
-
-    @Override
-    public Accounts findByAccountId(int accountId){
         Accounts account;
-        String sql = "SELECT * FROM accounts WHERE account_id = ?;";
-        SqlRowSet accountInfo = jdbcTemplate.queryForRowSet(sql, accountId);
-        return null;
-        //TODO flesh out method
+        String sql = "SELECT * FROM accounts WHERE user_id = ?;";
+        SqlRowSet accountInfo = jdbcTemplate.queryForRowSet(sql, userId);
+        account = mapRowToAccount(accountInfo);
+        return account;
     }
 
     private Accounts mapRowToAccount(SqlRowSet accountInfo){
