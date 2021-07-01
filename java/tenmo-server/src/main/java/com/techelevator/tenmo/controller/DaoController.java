@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.security.auth.login.AccountNotFoundException;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 
@@ -26,7 +27,7 @@ public class DaoController {
     }
 
     @RequestMapping(path = "accounts/{userId}/balance", method = RequestMethod.GET)
-    public BigDecimal getBalance(@Valid @PathVariable int userId){
+    public BigDecimal getBalance(@PathVariable int userId) {
         BigDecimal balance = accountDao.getBalance(userId);
         return balance;
     }

@@ -26,15 +26,17 @@ private static final String API_BASE_URL = "http://localhost:8080/";
     private AuthenticatedUser currentUser;
     private ConsoleService console;
     private AuthenticationService authenticationService;
+    private ClientService clientService;
 
     public static void main(String[] args) {
-    	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL));
+    	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL), new ClientService(API_BASE_URL));
     	app.run();
     }
 
-    public App(ConsoleService console, AuthenticationService authenticationService) {
+    public App(ConsoleService console, AuthenticationService authenticationService, ClientService clientService) {
 		this.console = console;
 		this.authenticationService = authenticationService;
+		this.clientService = clientService;
 	}
 
 	public void run() {
@@ -70,8 +72,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void viewCurrentBalance() {
 		// TODO Auto-generated method stub
-		ClientService clientService = new ClientService(API_BASE_URL, currentUser);
-		clientService.getBalance();
+		System.out.println(clientService.getBalance(currentUser));
 	}
 
 	private void viewTransferHistory() {
