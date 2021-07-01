@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.model.SendMoneyToSelfException;
 import com.techelevator.tenmo.model.Transfers;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -12,6 +13,7 @@ public class JdbcTransferDao implements TransferDao{
 
     private JdbcTemplate jdbcTemplate;
     private TransferDao transferDao;
+    private AccountDao accountDao;
 
     @Override
     public List<Transfers> getAllTransfers(int userId) {
@@ -36,7 +38,20 @@ public class JdbcTransferDao implements TransferDao{
     }
 
     @Override
-    public String sendTransfer(int userFrom, int userTo, BigDecimal amount){
+    public Transfers sendTransfer(int userFrom, int userTo, BigDecimal amount, int transferTypeId){
+        transferTypeId = 2;
+        Transfers newTransfer = new Transfers();
+            if (userTo == userFrom) {
+                System.out.println("You can't send money to yourself!!!");
+            }
+            if(amount.compareTo(accountDao.getBalance(userFrom)) == -1 || amount.compareTo(accountDao.getBalance(userFrom)) == -0){
+                String sql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount)" +
+                        "Values(2, 2, ?, ?, ?);" +
+                        "";
+                jdbcTemplate.update(sql, userFrom, userTo, amount);
+            }
+
+
         return null;
     }
 

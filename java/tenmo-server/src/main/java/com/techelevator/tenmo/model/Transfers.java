@@ -12,6 +12,8 @@ public class Transfers {
     private BigDecimal amount;
 
 
+
+
     //getters
     public int getTransferId() {
         return transferId;
@@ -62,9 +64,6 @@ public class Transfers {
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
-
-
-
 
 
 
