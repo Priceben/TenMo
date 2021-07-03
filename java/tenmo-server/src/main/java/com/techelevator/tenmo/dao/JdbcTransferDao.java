@@ -1,21 +1,25 @@
 package com.techelevator.tenmo.dao;
 
-import com.techelevator.tenmo.model.Accounts;
-import com.techelevator.tenmo.model.SendMoneyToSelfException;
 import com.techelevator.tenmo.model.Transfers;
-import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class JdbcTransferDao implements TransferDao{
 
     private JdbcTemplate jdbcTemplate;
-    private TransferDao transferDao;
     private AccountDao accountDao;
+
+    public JdbcTransferDao(JdbcTemplate jdbcTemplate, AccountDao accountDao){
+        this.jdbcTemplate = jdbcTemplate;
+        this.accountDao = accountDao;
+    }
+
+
 
     @Override
     public List<Transfers> getAllTransfers(int userId) {
@@ -40,20 +44,19 @@ public class JdbcTransferDao implements TransferDao{
     }
 
     @Override
-    public Transfers sendTransfer(int userFrom, int userTo, BigDecimal amount, int transferTypeId){
-        transferTypeId = 2;
-        int userFromId = accountDao.findByUserId(userFrom).getUserId();
-        int userToId = accountDao.findByUserId(userFrom).getUserId();
+    public Transfers sendTransfer(int accountFromId, int accountToId, double amount){
+//        int userFromAccount = accountDao.getAccountIdByUser(userFrom);
+//        int userToAccount = accountDao.getAccountIdByUser(userTo);
 
-            if (userTo == userFrom) {
+            if (accountToId == accountFromId) {
                 System.out.println("You can't send money to yourself!!!");
             }
-            if(amount.compareTo(accountDao.getBalance(userFrom)) == -1 || amount.compareTo(accountDao.getBalance(userFrom)) == -0){
+            if(amount <= accountDao.getBalance(accountFromId)){
                 String sql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount)" +
-                        "Values(2, 2, ?, ?, ?);";
-                jdbcTemplate.update(sql, userFrom, userTo, amount);
-                accountDao.addToBalance(amount, userTo);
-                accountDao.subtractFromBalance(amount, userFrom);
+                        " Values(2, 2, ?, ?, ?);";
+                jdbcTemplate.update(sql, accountFromId, accountToId, amount);
+                accountDao.addToBalance(amount, accountToId);
+                accountDao.subtractFromBalance(amount, accountFromId);
                 System.out.println("Transfer completed!");
             }
             else{
@@ -64,11 +67,11 @@ public class JdbcTransferDao implements TransferDao{
 
     private Transfers mapRowToTransfers(SqlRowSet transferInfo){
         Transfers transfer = new Transfers();
-        transfer.setAccountFrom(transferInfo.getInt("account_from"));
-        transfer.setAccountTo(transferInfo.getInt("account_to"));
+        transfer.setAccountFromId(transferInfo.getInt("user_from"));
+        transfer.setAccountToId(transferInfo.getInt("user_to"));
         transfer.setTransferId(transferInfo.getInt("transfer_id"));
         transfer.setTransferStatusId(transferInfo.getInt("transfer_status_id"));
-        transfer.setAmount(transferInfo.getBigDecimal("amount"));
+        transfer.setAmount(transferInfo.getDouble("amount"));
         transfer.setTransferTypeId(transferInfo.getInt("transfer_type_id"));
 
         return transfer;

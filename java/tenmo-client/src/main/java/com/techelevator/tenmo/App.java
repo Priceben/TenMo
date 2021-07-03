@@ -1,11 +1,14 @@
 package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.Transfers;
 import com.techelevator.tenmo.model.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
 import com.techelevator.tenmo.services.ClientService;
 import com.techelevator.view.ConsoleService;
+
+import java.math.BigDecimal;
 
 public class App {
 
@@ -71,8 +74,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
-		System.out.println(clientService.getBalance(currentUser));
+		clientService.getBalance(currentUser);
 	}
 
 	private void viewTransferHistory() {
@@ -87,7 +89,14 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void sendBucks() {
 		// TODO Auto-generated method stub
-		clientService.sendMoney(currentUser);
+		int transferStatusId = 2;
+		int transferTypeId = 2;
+		int accountFromId = clientService.getAccountIdByUserId(currentUser.getUser().getId(), currentUser);
+		int userToId = console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)");
+		int accountToId = clientService.getAccountIdByUserId(userToId, currentUser);
+		double amount = Double.parseDouble(console.getUserInput("Enter amount"));
+		Transfers transfer = new Transfers(transferStatusId, transferTypeId, accountFromId, accountToId, amount);
+		clientService.sendMoney(transfer, currentUser);
 	}
 
 	private void requestBucks() {

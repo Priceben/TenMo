@@ -8,9 +8,7 @@ import com.techelevator.tenmo.model.Transfers;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.security.auth.login.AccountNotFoundException;
 import javax.validation.Valid;
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -21,28 +19,40 @@ public class DaoController {
     private UserDao userDao;
     private TransferDao transferDao;
 
-    public DaoController(AccountDao accountDao) {
+    public DaoController(AccountDao accountDao, TransferDao transferDao, UserDao userDao) {
         this.accountDao = accountDao;
+        this.transferDao = transferDao;
+        this.userDao = userDao;
     }
 
     @RequestMapping(path = "accounts/{userId}/balance", method = RequestMethod.GET)
-    public BigDecimal getBalance(@PathVariable int userId) {
-        BigDecimal balance = accountDao.getBalance(userId);
+    public double getBalance(@PathVariable int userId) {
+        double balance = accountDao.getBalance(accountDao.getAccountIdByUser(userId));
         return balance;
     }
 
-    @RequestMapping(path = "accounts/transfers/{userId}", method = RequestMethod.GET)
-    public List<Transfers> getAllTransfers(@PathVariable int userId){
+    @RequestMapping(path = "accounts/transfers/all", method = RequestMethod.GET)
+    public List<Transfers> getAllTransfers(Integer userId){
         List<Transfers> listTransfers = transferDao.getAllTransfers(userId);
         return listTransfers;
     }
 
-    @RequestMapping(path = "account/transfers/{userFromId}/{userToId}/{amount}", method = RequestMethod.POST)
-    public Transfers sendMoney(@RequestBody Transfers transfer, @PathVariable int userId){
-        transfer = transferDao.sendTransfer(transfer.getAccountFrom(), transfer.getAccountTo(),
-                transfer.getAmount(), transfer.getTransferTypeId());
+    @RequestMapping(path = "accounts/transfers", method = RequestMethod.POST)
+    public Transfers sendMoney(@RequestBody Transfers transfer){
+
+        int userFrom= transfer.getAccountFromId();
+        int userTo = transfer.getAccountToId();
+        double amount = transfer.getAmount();
+
+        Transfers processedTransfer = transferDao.sendTransfer(userFrom, userTo, amount);
+
         System.out.println("Transfer successful!");
-        return transfer;
+        return processedTransfer;
+    }
+    @RequestMapping(value = "/accounts/{userId}", method = RequestMethod.GET)
+    public int accountId(@Valid @PathVariable int userId) {
+        int accountId = accountDao.getAccountIdByUser(userId);
+        return accountId;
     }
 
 }
