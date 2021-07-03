@@ -3,6 +3,7 @@ package com.techelevator.tenmo.services;
 import com.techelevator.tenmo.model.Accounts;
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfers;
+import com.techelevator.tenmo.model.User;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -12,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Scanner;
 
 
@@ -56,12 +58,17 @@ public class ClientService {
         return transfersList;
     }
 
-    public void convertInfoToTransfer(Transfers transfer){
-        Scanner scanner = new Scanner(System.in);
-
-
+    public User[] listUsers(){
+        User[] userList = null;
+        userList= restTemplate.exchange(API_BASE_URL + "/listUsers", HttpMethod.GET,makeAuthEntity(currentUser), User[].class).getBody();
+        for(User user : userList){
+            System.out.println(user);
+        }
+        return userList;
 
     }
+
+
 
     public Transfers sendMoney(Transfers transfer, AuthenticatedUser currentUser){
 

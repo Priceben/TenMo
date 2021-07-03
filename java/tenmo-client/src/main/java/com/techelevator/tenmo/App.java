@@ -88,7 +88,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void sendBucks() {
-		// TODO Auto-generated method stub
+		clientService.listUsers();
 		int transferStatusId = 2;
 		int transferTypeId = 2;
 		int accountFromId = clientService.getAccountIdByUserId(currentUser.getUser().getId(), currentUser);
