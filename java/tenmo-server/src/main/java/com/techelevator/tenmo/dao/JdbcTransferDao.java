@@ -6,6 +6,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class JdbcTransferDao implements TransferDao{
     }*/
 
     @Override
-    public List<Transfers> getAllTransfers(int accountId) {
+    public List<Transfers> getAllTransfers(Long accountId) {
         List<Transfers> list = new ArrayList<>();
         String sql = "SELECT t.transfer_id, 'To: ' || u.username AS username, t.amount"
                 +" FROM transfers t"
@@ -69,7 +70,7 @@ public class JdbcTransferDao implements TransferDao{
     }
 
     @Override
-    public Transfers getTransferById(int transferId){
+    public Transfers getTransferById(Long transferId){
         Transfers transfer = new Transfers();
         String sql = "SELECT t.transfer_id, t.amount, tt.transfer_type_desc, ts.transfer_status_desc, ua.username AS user_from, ub.username AS user_to " +
                 "FROM transfers t " +
@@ -96,12 +97,12 @@ public class JdbcTransferDao implements TransferDao{
     }
 
     @Override
-    public Transfers sendTransfer(int accountFromId, int accountToId, double amount){
+    public Transfers sendTransfer(Long accountFromId, Long accountToId, BigDecimal amount){
 
             if (accountToId == accountFromId) {
                 System.out.println("You can't send money to yourself!!!");
             }
-            if(amount <= accountDao.getBalance(accountFromId)){
+            if(amount.compareTo(accountDao.getBalance(accountFromId)) == 0 || amount.compareTo(accountDao.getBalance(accountFromId)) == -1) {
                 String sql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount)" +
                         " Values(2, 2, ?, ?, ?);";
                 jdbcTemplate.update(sql, accountFromId, accountToId, amount);
@@ -117,8 +118,8 @@ public class JdbcTransferDao implements TransferDao{
 
     private Transfers mapRowToTransfers(SqlRowSet transferInfo){
         Transfers transfer = new Transfers();
-        transfer.setTransferId(transferInfo.getInt("transfer_id"));
-        transfer.setAmount(transferInfo.getDouble("amount"));
+        transfer.setTransferId(transferInfo.getLong("transfer_id"));
+        transfer.setAmount(transferInfo.getBigDecimal("amount"));
         transfer.setTransferTypeDesc(transferInfo.getString("transfer_type_desc"));
         transfer.setTransferStatusDesc(transferInfo.getString("transfer_status_desc"));
         transfer.setUserTo(transferInfo.getString("user_from"));
@@ -129,9 +130,9 @@ public class JdbcTransferDao implements TransferDao{
 
     private Transfers mapRowForTransferList(SqlRowSet results){
         Transfers transfer = new Transfers();
-        transfer.setTransferId(results.getInt("transfer_id"));
+        transfer.setTransferId(results.getLong("transfer_id"));
         transfer.setUserFrom(results.getString("username"));
-        transfer.setAmount(results.getDouble("amount"));
+        transfer.setAmount(results.getBigDecimal("amount"));
         return transfer;
     }
 

@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -27,13 +28,13 @@ public class DaoController {
     }
 
     @RequestMapping(path = "accounts/{userId}/balance", method = RequestMethod.GET)
-    public double getBalance(@Valid @PathVariable int userId) {
-        double balance = accountDao.getBalance(accountDao.getAccountIdByUser(userId));
+    public BigDecimal getBalance(@Valid @PathVariable Long userId) {
+        BigDecimal balance = accountDao.getBalance(accountDao.getAccountIdByUser(userId));
         return balance;
     }
 
     @RequestMapping(path = "accounts/transfers/{id}", method = RequestMethod.GET)
-    public List<Transfers> getAllTransfers(@Valid @PathVariable int id){
+    public List<Transfers> getAllTransfers(@Valid @PathVariable Long id){
         List<Transfers> listTransfers = transferDao.getAllTransfers(id);
         return listTransfers;
     }
@@ -41,9 +42,9 @@ public class DaoController {
     @RequestMapping(path = "accounts/transfers", method = RequestMethod.POST)
     public Transfers sendMoney(@RequestBody Transfers transfer){
 
-        int userFrom= transfer.getAccountFromId();
-        int userTo = transfer.getAccountToId();
-        double amount = transfer.getAmount();
+        Long userFrom= transfer.getAccountFromId();
+        Long userTo = transfer.getAccountToId();
+        BigDecimal amount = transfer.getAmount();
 
         Transfers processedTransfer = transferDao.sendTransfer(userFrom, userTo, amount);
 
@@ -51,8 +52,8 @@ public class DaoController {
         return processedTransfer;
     }
     @RequestMapping(value = "/accounts/{userId}", method = RequestMethod.GET)
-    public int accountId(@Valid @PathVariable int userId) {
-        int accountId = accountDao.getAccountIdByUser(userId);
+    public Long accountId(@Valid @PathVariable Long userId) {
+        Long accountId = accountDao.getAccountIdByUser(userId);
         return accountId;
     }
     @RequestMapping(path = "/users", method = RequestMethod.GET)
@@ -61,7 +62,7 @@ public class DaoController {
         return users;
     }
     @RequestMapping(path = "/transfers/{transferId}", method = RequestMethod.GET)
-    public Transfers getTransfersById(@Valid @PathVariable int transferId){
+    public Transfers getTransfersById(@Valid @PathVariable Long transferId){
         Transfers transfer = transferDao.getTransferById(transferId);
         return transfer;
     }

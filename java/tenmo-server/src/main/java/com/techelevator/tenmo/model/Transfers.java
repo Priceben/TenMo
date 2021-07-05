@@ -1,13 +1,15 @@
 package com.techelevator.tenmo.model;
 
+import java.math.BigDecimal;
+
 public class Transfers {
 
-    private int transferId;
-    private int transferTypeId;
-    private int transferStatusId;
-    private int accountFromId;
-    private int accountToId;
-    private double amount;
+    private Long transferId;
+    private Long transferTypeId;
+    private Long transferStatusId;
+    private Long accountFromId;
+    private Long accountToId;
+    private BigDecimal amount;
     private String userFrom;
     private String userTo;
     private String transferStatusDesc;
@@ -18,27 +20,27 @@ public class Transfers {
 
 
     //getters
-    public int getTransferId() {
+    public Long getTransferId() {
         return transferId;
     }
 
-    public int getTransferTypeId() {
+    public Long getTransferTypeId() {
         return transferTypeId;
     }
 
-    public int getTransferStatusId() {
+    public Long getTransferStatusId() {
         return transferStatusId;
     }
 
-    public int getAccountFromId() {
+    public Long getAccountFromId() {
         return accountFromId;
     }
 
-    public int getAccountToId() {
+    public Long getAccountToId() {
         return accountToId;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
@@ -54,27 +56,27 @@ public class Transfers {
 
     //setters
 
-    public void setTransferId(int transferId) {
+    public void setTransferId(Long transferId) {
         this.transferId = transferId;
     }
 
-    public void setTransferTypeId(int transferTypeId) {
+    public void setTransferTypeId(Long transferTypeId) {
         this.transferTypeId = transferTypeId;
     }
 
-    public void setTransferStatusId(int transferStatusId) {
+    public void setTransferStatusId(Long transferStatusId) {
         this.transferStatusId = transferStatusId;
     }
 
-    public void setAccountFromId(int accountFrom) {
+    public void setAccountFromId(Long accountFrom) {
         this.accountFromId = accountFrom;
     }
 
-    public void setAccountToId(int accountTo) {
+    public void setAccountToId(Long accountTo) {
         this.accountToId = accountTo;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

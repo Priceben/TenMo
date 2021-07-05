@@ -93,7 +93,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		if(userToIdInput == 0){
 			return;
 		} else {
-			double amount = clientService.userAmountInput(console, currentUser);
+			BigDecimal amount = clientService.userAmountInput(console, currentUser);
 			int accountToId = clientService.getAccountIdByUserId(userToIdInput, currentUser);
 			clientService.sendMoney(clientService.makeTransfer(currentUser, accountToId, amount), currentUser);
 		}

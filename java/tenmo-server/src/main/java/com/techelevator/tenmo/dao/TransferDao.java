@@ -8,10 +8,10 @@ import com.techelevator.tenmo.model.Transfers;
 public interface TransferDao {
 
 
-   public List<Transfers> getAllTransfers(int userId);
+   public List<Transfers> getAllTransfers(Long userId);
 
-   public Transfers getTransferById(int transferId);
-   public Transfers sendTransfer(int userFrom, int userTo, double amount);
+   public Transfers getTransferById(Long transferId);
+   public Transfers sendTransfer(Long userFrom, Long userTo, BigDecimal amount);
 
 
 }

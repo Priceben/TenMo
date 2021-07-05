@@ -8,11 +8,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-
+import java.math.BigDecimal;
 
 
 public class ClientService {
@@ -26,16 +27,20 @@ public class ClientService {
         this.API_BASE_URL = API_BASE_URL;
     }
 
-    public double getBalance(AuthenticatedUser currentUser){
-        double balance;
+    public BigDecimal getBalance(AuthenticatedUser currentUser){
+        BigDecimal balance;
         try {
             balance = restTemplate.exchange(API_BASE_URL + "/accounts/" + currentUser.getUser().getId() +"/balance",
-                    HttpMethod.GET, makeAuthEntity(currentUser), Double.class).getBody();
+                    HttpMethod.GET, makeAuthEntity(currentUser), BigDecimal.class).getBody();
             System.out.println("Your current account balance is: $" + balance);
+        } catch (ResourceAccessException rae) {
+            System.out.println("Entry invalid");
+        } catch (RestClientException rce){
+            System.out.println("invalid entry");
         } catch (Exception e){
             System.out.println("This happened: " + e.getMessage() + " and" + e.getCause());
-            balance = 0;
         }
+        balance = new BigDecimal("0");
         return balance;
     }
 
@@ -46,13 +51,14 @@ public class ClientService {
         System.out.println("Id              From/To              Amount");
         System.out.println("--------------------------------------------");
         System.out.println();
+
         int accountId = getAccountIdByUserId(currentUser.getUser().getId(), currentUser);
 
         try{
             transfersList = restTemplate.exchange(API_BASE_URL + "/accounts/transfers/" + accountId,
                     HttpMethod.GET, makeAuthEntity(currentUser), Transfers[].class).getBody();
             for(Transfers transfer : transfersList){
-                System.out.println(transfer.getTransferId() + "           " + transfer.getUserFrom() + "              "
+                System.out.println(transfer.getTransferId() + "     " + transfer.getUserFrom() + "      "
                 + transfer.getAmount());
             }
         } catch (NullPointerException ne){
@@ -92,12 +98,21 @@ public class ClientService {
     }
 
 
-    public double userAmountInput(ConsoleService console, AuthenticatedUser currentUser){
-        double amount = Double.parseDouble(console.getUserInput("Enter amount"));
-        return amount;
+    public BigDecimal userAmountInput(ConsoleService console, AuthenticatedUser currentUser){
+        BigDecimal zero = new BigDecimal("0.00");
+        try {
+            BigDecimal amount = new BigDecimal(Double.parseDouble(console.getUserInput("Enter amount")));
+            if (amount.compareTo(zero) == 1 || amount.compareTo(zero) == -1) {
+                return amount;
+            } else
+                System.out.println("You can not send a negative dollar amount!!!!");
+        }catch (NumberFormatException ne){
+            System.out.println("Must enter actual numbers");
+        }
+        return zero;
     }
 
-    public Transfers makeTransfer(AuthenticatedUser currentUser, int accountToId, double amount){
+    public Transfers makeTransfer(AuthenticatedUser currentUser, int accountToId, BigDecimal amount){
 
         Transfers transfer = new Transfers();
         transfer.setTransferTypeId(2);
@@ -109,11 +124,10 @@ public class ClientService {
         return transfer;
     }
 
-    public Transfers sendMoney(Transfers transfer, AuthenticatedUser currentUser){
+    public void sendMoney(Transfers transfer, AuthenticatedUser currentUser){
         try{
             transfer = restTemplate.exchange(API_BASE_URL + "/accounts/transfers",
                     HttpMethod.POST, makeTransferEntity(transfer, currentUser), Transfers.class).getBody();
-            System.out.println("Transfer Completed!");
         } catch (NullPointerException ne){
             System.out.println("No transfers found");
         } catch (RestClientException re){
@@ -123,7 +137,6 @@ public class ClientService {
         } catch (Exception e){
             System.out.println("Oops, something went wrong!");
         }
-        return transfer;
     }
 
     public int getAccountIdByUserId(int userId, AuthenticatedUser currentUser){
@@ -131,14 +144,14 @@ public class ClientService {
         try {
             accountToId = restTemplate.exchange(API_BASE_URL + "accounts/" + userId, HttpMethod.GET, makeAuthEntity(currentUser), Integer.class).getBody();
         } catch (Exception e){
-            System.out.println("This happened: " + e.getMessage() + " and " + e.getCause());
+            System.out.println("Invalid User ID entered");
         }
         return accountToId;
     }
 
     public void getTransferById(ConsoleService consoleService, AuthenticatedUser currentUser){
         Transfers transfer = new Transfers();
-        int transferId = consoleService.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)");
+        Integer transferId = consoleService.getUserInputInteger("Please enter the transfer ID to view details (0 to cancel)");
         if(transferId == 0){
             return;
         } else {
@@ -147,12 +160,12 @@ public class ClientService {
             System.out.println("Transfer Details");
             System.out.println("-------------------------------------------------------");
             transfer = restTemplate.exchange(API_BASE_URL + "/transfers/" + transferId, HttpMethod.GET, makeAuthEntity(currentUser), Transfers.class).getBody();
-            System.out.println("Id:        " + transfer.getTransferId());
-            System.out.println("From:      " + transfer.getUserFrom());
-            System.out.println("To:        " + transfer.getUserTo());
-            System.out.println("Type:      " + transfer.getTransferTypeDesc());
-            System.out.println("Status:    " + transfer.getTransferStatusDesc());
-            System.out.println("Amount:   $" + transfer.getAmount());
+            System.out.println("Id:     " + transfer.getTransferId());
+            System.out.println("From:   " + transfer.getUserFrom());
+            System.out.println("To:     " + transfer.getUserTo());
+            System.out.println("Type:   " + transfer.getTransferTypeDesc());
+            System.out.println("Status: " + transfer.getTransferStatusDesc());
+            System.out.println("Amount: $" + transfer.getAmount());
         }
     }
 

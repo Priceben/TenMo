@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 
 import java.math.BigDecimal;
 
@@ -17,33 +18,38 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public double getBalance(int accountId){
+    public BigDecimal getBalance(Long accountId){
         String sql = "SELECT balance FROM accounts WHERE account_id = ?;";
-        double balance = jdbcTemplate.queryForObject(sql, Double.class, accountId);
-        return balance;
+        try {
+            BigDecimal balance = jdbcTemplate.queryForObject(sql, BigDecimal.class, accountId);
+            return balance;
+        } catch (RestClientException rce){
+            System.out.println("Invalid User Id");
+        }BigDecimal zero = new BigDecimal("0.00");
+        return zero;
     }
 
     @Override
-    public double addToBalance(double amount, int accountToId){
+    public BigDecimal addToBalance(BigDecimal amount, Long accountToId){
           String sql = "UPDATE accounts SET balance = balance + ?  WHERE account_id = ? RETURNING balance;";
           try {
-              return jdbcTemplate.queryForObject(sql, Double.class, amount, accountToId);
+              return jdbcTemplate.queryForObject(sql, BigDecimal.class, amount, accountToId);
           } catch(ResourceAccessException re){
               System.out.println("Can not connect to database");
           }
-        return jdbcTemplate.queryForObject(sql, Double.class, amount, accountToId);
+        return jdbcTemplate.queryForObject(sql, BigDecimal.class, amount, accountToId);
 
     }
 
     @Override
-    public double subtractFromBalance(double amount, int accountFromId){
+    public BigDecimal subtractFromBalance(BigDecimal amount, Long accountFromId){
         String sql = "UPDATE accounts SET balance = balance - ?  WHERE account_id = ? RETURNING balance;";
         try {
-            return jdbcTemplate.queryForObject(sql, Double.class, amount, accountFromId);
+            return jdbcTemplate.queryForObject(sql, BigDecimal.class, amount, accountFromId);
         } catch(ResourceAccessException re){
             System.out.println("Can not connect to database");
         }
-        return jdbcTemplate.queryForObject(sql, Double.class, amount, accountFromId);
+        return jdbcTemplate.queryForObject(sql, BigDecimal.class, amount, accountFromId);
     }
 
 
@@ -55,9 +61,9 @@ public class JdbcAccountDao implements AccountDao {
         return account;
     }
 
-    public int getAccountIdByUser(int userId){
+    public Long getAccountIdByUser(Long userId){
         String sql = "SELECT account_id FROM accounts WHERE user_id = ?";
-        int id = jdbcTemplate.queryForObject(sql, Integer.class, userId);
+        Long id = jdbcTemplate.queryForObject(sql, Long.class, userId);
         return id;
     }
 

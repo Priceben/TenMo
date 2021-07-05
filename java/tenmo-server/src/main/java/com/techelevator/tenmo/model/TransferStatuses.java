@@ -2,10 +2,10 @@ package com.techelevator.tenmo.model;
 
 public class TransferStatuses {
 
-    private int transferStatusId;
+    private Long transferStatusId;
     private String transferStatusDesc;
 
-    public int getTransferStatusId() {
+    public Long getTransferStatusId() {
         return transferStatusId;
     }
 
@@ -13,7 +13,7 @@ public class TransferStatuses {
         return transferStatusDesc;
     }
 
-    public void setTransferStatusId(int transferStatusId) {
+    public void setTransferStatusId(Long transferStatusId) {
         this.transferStatusId = transferStatusId;
     }
 
