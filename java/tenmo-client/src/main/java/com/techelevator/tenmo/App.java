@@ -78,8 +78,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
-		System.out.println(clientService.getAllTransfers(currentUser));
+    	clientService.getAllTransfers(currentUser);
+    	clientService.getTransferById(console, currentUser);
 	}
 
 	private void viewPendingRequests() {
@@ -88,15 +88,15 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void sendBucks() {
-		clientService.listUsers();
-		int transferStatusId = 2;
-		int transferTypeId = 2;
-		int accountFromId = clientService.getAccountIdByUserId(currentUser.getUser().getId(), currentUser);
-		int userToId = console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)");
-		int accountToId = clientService.getAccountIdByUserId(userToId, currentUser);
-		double amount = Double.parseDouble(console.getUserInput("Enter amount"));
-		Transfers transfer = new Transfers(transferStatusId, transferTypeId, accountFromId, accountToId, amount);
-		clientService.sendMoney(transfer, currentUser);
+		clientService.listUsers(currentUser);
+		int userToIdInput = clientService.userToIdInput(console, currentUser);
+		if(userToIdInput == 0){
+			return;
+		} else {
+			double amount = clientService.userAmountInput(console, currentUser);
+			int accountToId = clientService.getAccountIdByUserId(userToIdInput, currentUser);
+			clientService.sendMoney(clientService.makeTransfer(currentUser, accountToId, amount), currentUser);
+		}
 	}
 
 	private void requestBucks() {

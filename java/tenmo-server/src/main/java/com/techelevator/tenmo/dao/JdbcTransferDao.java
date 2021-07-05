@@ -4,6 +4,7 @@ import com.techelevator.tenmo.model.Transfers;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,32 +22,81 @@ public class JdbcTransferDao implements TransferDao{
 
 
 
-    @Override
+    /*@Override
     public List<Transfers> getAllTransfers(int userId) {
-        List<Transfers> listTransfers = new ArrayList<>();
-        String sql = "SELECT t.*, x.username AS user_to, y.username AS user_from" +
-                "FROM transfers t INNER JOIN accounts a ON t.account_to = a.account_id" +
-                "INNER JOIN accounts b ON t.account_from = b.account_id" +
-                "INNER JOIN user x ON x.user_id = a.user_id" +
-                "INNER JOIN user y ON y.user_id = b.user_id" +
-                "WHERE a.user_id = ? OR b.user_id = ?;";
-        SqlRowSet transferInfo = jdbcTemplate.queryForRowSet(sql, userId, userId);
-        while(transferInfo.next()){
-            Transfers transfer = mapRowToTransfers(transferInfo);
-            listTransfers.add(transfer);
+        List<Transfers> list = new ArrayList<>();
+        String sql = "SELECT t.transfer_id, 'To: '||u.username AS username, t.amount"
+                +" FROM transfers t"
+                +" INNER JOIN accounts a ON t.account_to = a.account_id"
+                +" INNER JOIN users u ON a.user_id = u.user_id"
+                +" WHERE t.account_from = ?"
+                +" UNION"
+                +" SELECT t.transfer_id, 'From: '||u.username AS username, t.amount"
+                +" FROM transfers t"
+                +" INNER JOIN accounts a ON t.account_from = a.account_id"
+                +" INNER JOIN users u ON a.user_id = u.user_id"
+                +" WHERE t.account_to = ?"
+                +" ORDER BY transfer_id;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId, userId);
+        while (results.next() ) {
+            Transfers transfers = mapRowTorTransfer(results);
+            list.add(transfers);
         }
-        return listTransfers;
+        return list;
+    }*/
+
+    @Override
+    public List<Transfers> getAllTransfers(int accountId) {
+        List<Transfers> list = new ArrayList<>();
+        String sql = "SELECT t.transfer_id, 'To: ' || u.username AS username, t.amount"
+                +" FROM transfers t"
+                +" INNER JOIN accounts a ON t.account_to = a.account_id"
+                +" INNER JOIN users u ON a.user_id = u.user_id"
+                +" WHERE t.account_from = ?"
+                +" UNION"
+                +" SELECT t.transfer_id, 'From: ' || u.username AS username, t.amount"
+                +" FROM transfers t"
+                +" INNER JOIN accounts a ON t.account_from = a.account_id"
+                +" INNER JOIN users u ON a.user_id = u.user_id"
+                +" WHERE t.account_to = ?"
+                +" ORDER BY transfer_id;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId, accountId);
+        while (results.next() ) {
+            Transfers transfers = mapRowForTransferList(results);
+            list.add(transfers);
+        }
+        return list;
     }
 
     @Override
     public Transfers getTransferById(int transferId){
-        return null;
+        Transfers transfer = new Transfers();
+        String sql = "SELECT t.transfer_id, t.amount, tt.transfer_type_desc, ts.transfer_status_desc, ua.username AS user_from, ub.username AS user_to " +
+                "FROM transfers t " +
+                "INNER JOIN transfer_statuses ts " +
+                "ON ts.transfer_status_id = t.transfer_status_id " +
+                "INNER JOIN transfer_types tt " +
+                "ON t.transfer_type_id = tt.transfer_type_id " +
+                "INNER JOIN accounts a ON t.account_from = a.account_id " +
+                "INNER JOIN accounts b ON t.account_to = b.account_id " +
+                "INNER JOIN users ua ON ua.user_id = a.user_id " +
+                "INNER JOIN users ub ON ub.user_id = b.user_id " +
+                "WHERE t.transfer_id = ?;";
+        try {
+            //if this doesn't work, try SQLrowset and MapToTransfer
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
+            while(results.next()){
+                transfer = mapRowToTransfers(results);
+            }
+            return transfer;
+        }catch(ResourceAccessException rae){
+            System.out.println("Cannot connect with Server!!!");
+        }
+        return transfer;
     }
 
     @Override
     public Transfers sendTransfer(int accountFromId, int accountToId, double amount){
-//        int userFromAccount = accountDao.getAccountIdByUser(userFrom);
-//        int userToAccount = accountDao.getAccountIdByUser(userTo);
 
             if (accountToId == accountFromId) {
                 System.out.println("You can't send money to yourself!!!");
@@ -67,13 +117,22 @@ public class JdbcTransferDao implements TransferDao{
 
     private Transfers mapRowToTransfers(SqlRowSet transferInfo){
         Transfers transfer = new Transfers();
-        transfer.setAccountFromId(transferInfo.getInt("user_from"));
-        transfer.setAccountToId(transferInfo.getInt("user_to"));
         transfer.setTransferId(transferInfo.getInt("transfer_id"));
-        transfer.setTransferStatusId(transferInfo.getInt("transfer_status_id"));
         transfer.setAmount(transferInfo.getDouble("amount"));
-        transfer.setTransferTypeId(transferInfo.getInt("transfer_type_id"));
+        transfer.setTransferTypeDesc(transferInfo.getString("transfer_type_desc"));
+        transfer.setTransferStatusDesc(transferInfo.getString("transfer_status_desc"));
+        transfer.setUserTo(transferInfo.getString("user_from"));
+        transfer.setUserFrom(transferInfo.getString("user_to"));
 
         return transfer;
     }
+
+    private Transfers mapRowForTransferList(SqlRowSet results){
+        Transfers transfer = new Transfers();
+        transfer.setTransferId(results.getInt("transfer_id"));
+        transfer.setUserFrom(results.getString("username"));
+        transfer.setAmount(results.getDouble("amount"));
+        return transfer;
+    }
+
 }

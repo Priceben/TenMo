@@ -5,6 +5,7 @@ import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Transfers;
+import com.techelevator.tenmo.model.User;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,14 +27,14 @@ public class DaoController {
     }
 
     @RequestMapping(path = "accounts/{userId}/balance", method = RequestMethod.GET)
-    public double getBalance(@PathVariable int userId) {
+    public double getBalance(@Valid @PathVariable int userId) {
         double balance = accountDao.getBalance(accountDao.getAccountIdByUser(userId));
         return balance;
     }
 
-    @RequestMapping(path = "accounts/transfers/all", method = RequestMethod.GET)
-    public List<Transfers> getAllTransfers(Integer userId){
-        List<Transfers> listTransfers = transferDao.getAllTransfers(userId);
+    @RequestMapping(path = "accounts/transfers/{id}", method = RequestMethod.GET)
+    public List<Transfers> getAllTransfers(@Valid @PathVariable int id){
+        List<Transfers> listTransfers = transferDao.getAllTransfers(id);
         return listTransfers;
     }
 
@@ -53,6 +54,16 @@ public class DaoController {
     public int accountId(@Valid @PathVariable int userId) {
         int accountId = accountDao.getAccountIdByUser(userId);
         return accountId;
+    }
+    @RequestMapping(path = "/users", method = RequestMethod.GET)
+    public List<User> listUsers(){
+        List<User> users = userDao.findAll();
+        return users;
+    }
+    @RequestMapping(path = "/transfers/{transferId}", method = RequestMethod.GET)
+    public Transfers getTransfersById(@Valid @PathVariable int transferId){
+        Transfers transfer = transferDao.getTransferById(transferId);
+        return transfer;
     }
 
 }

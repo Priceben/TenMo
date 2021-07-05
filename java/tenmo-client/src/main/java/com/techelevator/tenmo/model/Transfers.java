@@ -1,7 +1,5 @@
 package com.techelevator.tenmo.model;
 
-import java.math.BigDecimal;
-
 public class Transfers {
     private int transferId;
     private int transferTypeId;
@@ -9,26 +7,10 @@ public class Transfers {
     private int accountFromId;
     private int accountToId;
     private double amount;
-
-    public Transfers(int accountFrom, int accountTo, double amount){
-        this.accountFromId = accountFrom;
-        this.accountToId = accountTo;
-        this.amount = amount;
-    }
-
-    public Transfers( int transferId, int accountFrom, int accountTo, double amount){
-        this.transferId = transferId;
-        this.accountFromId = accountFrom;
-        this.accountToId = accountTo;
-        this.amount = amount;
-    }
-    public Transfers(int transferStatusId, int transferTypeId, int accountFrom, int accountTo, double amount){
-        this.accountFromId = accountFrom;
-        this.accountToId = accountTo;
-        this.amount = amount;
-        this.transferStatusId = transferStatusId;
-        this.transferTypeId = transferTypeId;
-    }
+    private String userFrom;
+    private String userTo;
+    private String transferTypeDesc;
+    private String transferStatusDesc;
 
 
     //getters
@@ -56,6 +38,15 @@ public class Transfers {
         return amount;
     }
 
+    public String getUserFrom() { return userFrom; }
+
+    public String getUserTo() { return userTo; }
+
+    public String getTransferTypeDesc() { return transferTypeDesc; }
+
+    public String getTransferStatusDesc() { return transferStatusDesc; }
+
+
     //setters
 
     public void setTransferId(int transferId) {
@@ -81,4 +72,13 @@ public class Transfers {
     public void setAmount(double amount) {
         this.amount = amount;
     }
+
+    public void setUserFrom(String userFrom) { this.userFrom = userFrom; }
+
+    public void setUserTo(String userTo) { this.userTo = userTo; }
+
+    public void setTransferTypeDesc(String transferTypeDesc) { this.transferTypeDesc = transferTypeDesc; }
+
+    public void setTransferStatusDesc(String transferStatusDesc) { this.transferStatusDesc = transferStatusDesc; }
+
 }

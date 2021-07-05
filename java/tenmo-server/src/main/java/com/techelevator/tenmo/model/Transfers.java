@@ -8,6 +8,11 @@ public class Transfers {
     private int accountFromId;
     private int accountToId;
     private double amount;
+    private String userFrom;
+    private String userTo;
+    private String transferStatusDesc;
+    private String transferTypeDesc;
+
 
 
 
@@ -37,6 +42,16 @@ public class Transfers {
         return amount;
     }
 
+    public String getUserFrom() { return userFrom; }
+
+    public String getUserTo() { return userTo; }
+
+    public String getTransferStatusDesc() { return transferStatusDesc; }
+
+    public String getTransferTypeDesc() { return transferTypeDesc; }
+
+
+
     //setters
 
     public void setTransferId(int transferId) {
@@ -63,6 +78,12 @@ public class Transfers {
         this.amount = amount;
     }
 
+    public void setUserFrom(String userFrom) { this.userFrom = userFrom; }
 
+    public void setUserTo(String userTo) { this.userTo = userTo; }
+
+    public void setTransferStatusDesc(String transferStatusDesc) { this.transferStatusDesc = transferStatusDesc; }
+
+    public void setTransferTypeDesc(String transferTypeDesc) { this.transferTypeDesc = transferTypeDesc; }
 
 }

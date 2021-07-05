@@ -46,17 +46,6 @@ public class JdbcAccountDao implements AccountDao {
         return jdbcTemplate.queryForObject(sql, Double.class, amount, accountFromId);
     }
 
-    @Override
-    //THIS is the probl
-    public Accounts findByUserId(int userId){
-        Accounts account = new Accounts();
-        String sql = "SELECT account_id, user_id, balance FROM accounts WHERE user_id = ?;";
-        SqlRowSet result = jdbcTemplate.queryForRowSet(sql, userId);
-        while(result.next()){
-            account = mapRowToAccount(result);
-        }
-        return account;
-    }
 
     private Accounts mapRowToAccount(SqlRowSet accountInfo){
         Accounts account = new Accounts();
